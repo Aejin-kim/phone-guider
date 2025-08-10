@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>목적지 입력 - 카카오 T</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            background: #fff;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 지도 영역 */
+        .map-section {
+            flex: 1;
+            background: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 100%;
+            background: url('images/jeju_map.png') no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* 지도 내 버튼들 */
+        .map-buttons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .departure-button {
+            background: #374151;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .reservation-button {
+            background: #374151;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .target-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: #fff;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            font-size: 18px;
+        }
+
+        /* 지도 내 포인트들 */
+        .map-points {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #FF6B35;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .point:nth-child(1) { top: -100px; left: -50px; }
+        .point:nth-child(2) { top: -80px; right: -80px; }
+        .point:nth-child(3) { bottom: -60px; left: -30px; }
+        .point:nth-child(4) { bottom: -40px; right: -60px; }
+
+        /* 하단 입력 패널 */
+        .input-panel {
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .panel-handle {
+            width: 40px;
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+
+        .departure-info {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+
+        .destination-input {
+            width: 100%;
+            border: 2px solid #EF4444;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 16px;
+            background: #fff;
+            color: #333;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .destination-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-btn {
+            flex: 1;
+            padding: 12px;
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #E5E7EB;
+        }
+
+        .quick-btn.primary {
+            background: #EF4444;
+            color: #fff;
+            border-color: #EF4444;
+        }
+
+        .quick-btn.primary:hover {
+            background: #DC2626;
+        }
+
+        /* 애니메이션 */
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .input-panel {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            .map-buttons {
+                top: 15px;
+                left: 15px;
+                right: 15px;
+            }
+
+            .departure-button {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .reservation-button {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+
+            .target-button {
+                bottom: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .input-panel {
+                padding: 15px;
+            }
+            
+            .departure-info {
+                font-size: 13px;
+            }
+            
+            .destination-input {
+                padding: 12px;
+                font-size: 15px;
+            }
+            
+            .quick-buttons {
+                gap: 8px;
+            }
+            
+            .quick-btn {
+                padding: 10px;
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .map-buttons {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+            }
+            
+            .departure-button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .reservation-button {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+            
+            .target-button {
+                bottom: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            
+            .input-panel {
+                padding: 12px;
+            }
+            
+            .departure-info {
+                font-size: 12px;
+            }
+            
+            .destination-input {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .quick-btn {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 지도 영역 -->
+        <div class="map-section">
+            <div class="map-container">
+                <!-- 지도 내 버튼들 -->
+                <div class="map-buttons">
+                    <button class="departure-button">
+                        🚗 출발
+                    </button>
+                    <button class="reservation-button">
+                        📅🚗 예약하기
+                    </button>
+                </div>
+
+                <!-- 타겟 버튼 -->
+                <button class="target-button">
+                    🎯
+                </button>
+
+                <!-- 지도 내 포인트들 -->
+                <div class="map-points">
+                    <div class="point"></div>
+                    <div class="point"></div>
+                    <div class="point"></div>
+                    <div class="point"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 입력 패널 -->
+        <div class="input-panel">
+            <div class="panel-handle"></div>
+            
+            <div class="departure-info">
+                제주시청앞 공영주차장
+            </div>
+
+            <input type="text" class="destination-input" placeholder="어디로 갈까요?" id="destinationInput" autofocus>
+
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="addQuickDestination('집')">
+                    + 집
+                </button>
+                <button class="quick-btn" onclick="addQuickDestination('회사')">
+                    🏢 회사
+                </button>
+                <button class="quick-btn primary" onclick="addQuickDestination('제주국제공항')">
+                    ✈️ 제주국제공항
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 빠른 목적지 추가
+        function addQuickDestination(destination) {
+            const input = document.getElementById('destinationInput');
+            input.value = destination;
+            input.focus();
+        }
+
+        // 출발 버튼 클릭
+        document.querySelector('.departure-button').addEventListener('click', function() {
+            alert('출발지가 설정되었습니다.');
+        });
+
+        // 예약하기 버튼 클릭
+        document.querySelector('.reservation-button').addEventListener('click', function() {
+            alert('예약 화면으로 이동합니다.');
+        });
+
+        // 타겟 버튼 클릭
+        document.querySelector('.target-button').addEventListener('click', function() {
+            alert('현재 위치로 이동합니다.');
+        });
+
+        // 목적지 입력 필드 클릭 시 검색 페이지로 이동
+        document.getElementById('destinationInput').addEventListener('click', function() {
+            window.location.href = 'destination-search.html';
+        });
+
+        // 목적지 입력 이벤트
+        document.getElementById('destinationInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const destination = this.value.trim();
+                if (destination) {
+                    alert(`목적지 "${destination}"로 이동합니다.`);
+                }
+            }
+        });
+
+        // 패널 드래그 기능 (간단한 버전)
+        let isDragging = false;
+        let startY = 0;
+        let startHeight = 0;
+
+        document.querySelector('.panel-handle').addEventListener('mousedown', function(e) {
+            isDragging = true;
+            startY = e.clientY;
+            startHeight = document.querySelector('.input-panel').offsetHeight;
+            document.body.style.cursor = 'ns-resize';
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            
+            const deltaY = startY - e.clientY;
+            const newHeight = Math.max(200, Math.min(400, startHeight + deltaY));
+            
+            document.querySelector('.input-panel').style.height = newHeight + 'px';
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                document.body.style.cursor = 'default';
+            }
+        });
+
+        // 터치 이벤트 지원
+        document.querySelector('.panel-handle').addEventListener('touchstart', function(e) {
+            isDragging = true;
+            startY = e.touches[0].clientY;
+            startHeight = document.querySelector('.input-panel').offsetHeight;
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const deltaY = startY - e.touches[0].clientY;
+            const newHeight = Math.max(200, Math.min(400, startHeight + deltaY));
+            
+            document.querySelector('.input-panel').style.height = newHeight + 'px';
+        });
+
+        document.addEventListener('touchend', function() {
+            isDragging = false;
+        });
+    </script>
+</body>
+</html> 

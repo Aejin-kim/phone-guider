@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>택시 호출 완료 - 카카오 T</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            background: #fff;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 상단 헤더 */
+        .header {
+            background: #fff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .close-button {
+            width: 40px;
+            height: 40px;
+            background: #F3F4F6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 18px;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* 성공 아이콘 */
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #10B981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        /* 택시 호출 상태 */
+        .call-status {
+            margin-bottom: 30px;
+        }
+
+        .status-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .status-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+            margin-bottom: 20px;
+        }
+
+        /* 택시 정보 */
+        .taxi-info {
+            background: #F9FAFB;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .taxi-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .taxi-icon {
+            width: 50px;
+            height: 50px;
+            background: #FEE2E2;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .taxi-details {
+            flex: 1;
+        }
+
+        .taxi-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .taxi-number {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .taxi-eta {
+            font-size: 16px;
+            color: #10B981;
+            font-weight: bold;
+        }
+
+        /* 경로 정보 */
+        .route-info {
+            background: #F9FAFB;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .route-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .route-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .route-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .route-icon.start {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .route-icon.end {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .route-text {
+            flex: 1;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        /* 액션 버튼들 */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #1E3A8A;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1E40AF;
+        }
+
+        .btn-secondary {
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 상단 헤더 -->
+        <div class="header">
+            <div class="header-title">택시 호출</div>
+            <button class="close-button" onclick="closeScreen()">✕</button>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="main-content">
+            <!-- 성공 아이콘 -->
+            <div class="success-icon fade-in">✓</div>
+
+            <!-- 택시 호출 상태 -->
+            <div class="call-status fade-in">
+                <div class="status-title">택시를 호출했습니다!</div>
+                <div class="status-subtitle">곧 택시가 도착할 예정입니다</div>
+            </div>
+
+            <!-- 택시 정보 -->
+            <div class="taxi-info fade-in">
+                <div class="taxi-header">
+                    <div class="taxi-icon">🚕</div>
+                    <div class="taxi-details">
+                        <div class="taxi-name">김택시 기사님</div>
+                        <div class="taxi-number">12가 3456</div>
+                    </div>
+                </div>
+                <div class="taxi-eta">약 3분 후 도착 예정</div>
+            </div>
+
+            <!-- 경로 정보 -->
+            <div class="route-info fade-in">
+                <div class="route-item">
+                    <div class="route-icon start">📍</div>
+                    <div class="route-text">제주시청앞 공영주차장</div>
+                </div>
+                <div class="route-item">
+                    <div class="route-icon end">🎯</div>
+                    <div class="route-text">제주국제공항</div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼들 -->
+            <div class="action-buttons fade-in">
+                <button class="action-btn btn-primary" onclick="callDriver()">
+                    기사님께 전화
+                </button>
+                <button class="action-btn btn-secondary" onclick="cancelCall()">
+                    호출 취소
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 화면 닫기
+        function closeScreen() {
+            window.location.href = 'index.html';
+        }
+
+        // 기사님께 전화
+        function callDriver() {
+            alert('기사님께 전화를 연결합니다.');
+        }
+
+        // 호출 취소
+        function cancelCall() {
+            if (confirm('정말로 택시 호출을 취소하시겠습니까?')) {
+                alert('택시 호출이 취소되었습니다.');
+                window.location.href = 'taxi-call.html';
+            }
+        }
+
+        // 페이지 로드 시 애니메이션
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    el.style.opacity = '1';
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html> 

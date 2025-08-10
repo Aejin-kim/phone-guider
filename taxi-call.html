@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>택시 호출 - 카카오 T</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            background: #fff;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+        }
+
+        /* 상단 헤더 */
+        .header {
+            background: #1E3A8A;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab {
+            color: #fff;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #fff;
+            color: #1E3A8A;
+        }
+
+        .tab-dot {
+            width: 4px;
+            height: 4px;
+            background: #3B82F6;
+            border-radius: 50%;
+            margin: 2px auto 0;
+        }
+
+        /* 검색바 */
+        .search-section {
+            padding: 20px;
+            background: #fff;
+        }
+
+        .search-bar {
+            background: #fff;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            color: #333;
+            background: transparent;
+            cursor: text;
+        }
+
+        .search-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .search-input:focus {
+            color: #333;
+        }
+
+        .departure-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #3B82F6;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #3B82F6;
+        }
+
+        /* 빠른 접근 */
+        .quick-access {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .quick-btn {
+            width: 50px;
+            height: 50px;
+            background: #F3F4F6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #E5E7EB;
+            transform: scale(1.05);
+        }
+
+        /* 광고 배너 */
+        .ad-banner {
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ad-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ad-text {
+            flex: 1;
+        }
+
+        .ad-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .ad-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .ad-image {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        /* 서비스 그리드 */
+        .services-section {
+            padding: 0 20px 20px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+
+        .service-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .service-item:hover {
+            background: #F9FAFB;
+            transform: translateY(-2px);
+        }
+
+        .service-item.selected {
+            border: 2px solid #EF4444;
+            background: #FEF2F2;
+            cursor: pointer;
+        }
+
+        .service-item.selected:hover {
+            background: #FEE2E2;
+            transform: scale(1.05);
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: #F3F4F6;
+        }
+
+        .service-item.selected .service-icon {
+            background: #FEE2E2;
+        }
+
+        .service-text {
+            font-size: 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* 하단 네비게이션 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #E5E7EB;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: #F9FAFB;
+        }
+
+        .nav-item.active {
+            color: #3B82F6;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-text {
+            font-size: 12px;
+        }
+
+        .notification-dot {
+            width: 6px;
+            height: 6px;
+            background: #EF4444;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* 팝업 스타일 */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+
+        .popup {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        .popup-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .speech-bubble {
+            background: white;
+            border-radius: 15px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: 2px solid #EF4444;
+            color: #EF4444;
+            width: auto;
+            height: auto;
+            min-width: 50px;
+            min-height: 30px;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-weight: bold;
+            padding: 5px 10px;
+        }
+
+        .close-button:hover {
+            background: #EF4444;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .popup.hidden {
+            display: none;
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .header {
+                padding: 12px 15px;
+            }
+            
+            .tab {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+            
+            .search-section {
+                padding: 15px;
+            }
+            
+            .search-bar {
+                padding: 12px;
+            }
+            
+            .search-input {
+                font-size: 15px;
+            }
+            
+            .quick-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .services-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+                padding: 0 15px;
+            }
+            
+            .service-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            .service-text {
+                font-size: 10px;
+            }
+            
+            .ad-banner {
+                margin: 15px;
+                padding: 15px;
+            }
+            
+            .ad-title {
+                font-size: 14px;
+            }
+            
+            .ad-subtitle {
+                font-size: 12px;
+            }
+            
+            .bottom-nav {
+                max-width: 100%;
+                padding: 8px 0;
+            }
+            
+            .nav-icon {
+                font-size: 18px;
+            }
+            
+            .nav-text {
+                font-size: 11px;
+            }
+            
+            .popup {
+                width: 95%;
+                max-width: 320px;
+                border-radius: 15px 15px 0 0;
+            }
+            
+            .popup-image {
+                border-radius: 15px 15px 0 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .services-grid {
+                gap: 6px;
+            }
+            
+            .service-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+            
+            .service-text {
+                font-size: 9px;
+            }
+            
+            .popup {
+                width: 98%;
+                max-width: 300px;
+                border-radius: 12px 12px 0 0;
+            }
+            
+            .popup-image {
+                border-radius: 12px 12px 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 팝업 오버레이 -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup" id="popup">
+            <button class="close-button" onclick="closePopup()">닫기</button>
+            <img src="images/phone_popup.png" alt="제주형 스마트폰 안내서" class="popup-image">
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 상단 헤더 -->
+        <div class="header">
+            <div class="tab-container">
+                <div class="tab">마이카</div>
+                <div class="tab active">
+                    홈
+                    <div class="tab-dot"></div>
+                </div>
+                <div class="tab">여행</div>
+            </div>
+        </div>
+
+        <!-- 검색바 -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="어디로 갈까요?">
+                <div class="departure-time">
+                    지금 출발
+                    <div class="arrow-down"></div>
+                </div>
+            </div>
+
+            <!-- 빠른 접근 -->
+            <div class="quick-access">
+                <div class="quick-btn">🏠</div>
+                <div class="quick-btn">🏢</div>
+            </div>
+        </div>
+
+        <!-- 광고 배너 -->
+        <div class="ad-banner fade-in">
+            <div class="ad-content">
+                <div class="ad-text">
+                    <div class="ad-title">제주형 스마트폰 안내서 출시</div>
+                    <div class="ad-subtitle">제주 여행을 더욱 편리하게</div>
+                </div>
+                <div class="ad-image">📱</div>
+            </div>
+        </div>
+
+        <!-- 서비스 그리드 -->
+        <div class="services-section">
+            <div class="services-grid">
+                <!-- 첫 번째 행 -->
+                <div class="service-item selected">
+                    <div class="service-icon">🚕</div>
+                    <div class="service-text">택시</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">📅</div>
+                    <div class="service-text">택시예약</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🚲</div>
+                    <div class="service-text">바이크</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🅿️</div>
+                    <div class="service-text">주차</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🚗</div>
+                    <div class="service-text">대리</div>
+                </div>
+
+                <!-- 두 번째 행 -->
+                <div class="service-item">
+                    <div class="service-icon">📦</div>
+                    <div class="service-text">퀵·배송</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🚙</div>
+                    <div class="service-text">렌터카</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">✈️</div>
+                    <div class="service-text">항공</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">⚡</div>
+                    <div class="service-text">전기차충전</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🔧</div>
+                    <div class="service-text">터치제주</div>
+                </div>
+
+                <!-- 세 번째 행 -->
+                <div class="service-item">
+                    <div class="service-icon">🐕</div>
+                    <div class="service-text">펫</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🚌</div>
+                    <div class="service-text">기차/버스</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🎈</div>
+                    <div class="service-text">레저/티켓</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🚗</div>
+                    <div class="service-text">해외렌터카</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">⋯</div>
+                    <div class="service-text">전체보기</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 네비게이션 -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-text">홈</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">💼</div>
+                <div class="nav-text">비즈니스</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">🔔</div>
+                <div class="nav-text">이용/알림</div>
+            </div>
+            <div class="nav-item" style="position: relative;">
+                <div class="nav-icon">👤</div>
+                <div class="nav-text">내 정보</div>
+                <div class="notification-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 팝업 제어 함수
+        function closePopup() {
+            const popupOverlay = document.getElementById('popupOverlay');
+            popupOverlay.style.display = 'none';
+        }
+
+        // 페이지 로드 시 팝업 표시
+        window.addEventListener('load', function() {
+            // 팝업이 자동으로 표시되도록 설정
+            const popupOverlay = document.getElementById('popupOverlay');
+            popupOverlay.style.display = 'flex';
+        });
+
+        // 탭 클릭 이벤트
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 서비스 아이템 클릭 이벤트
+        document.querySelectorAll('.service-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.service-item').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // 네비게이션 클릭 이벤트
+        document.querySelectorAll('.nav-item').forEach(nav => {
+            nav.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 택시 버튼 클릭 이벤트
+        document.querySelector('.service-item.selected').addEventListener('click', function() {
+            window.location.href = 'destination-input.html';
+        });
+
+        // 출발 시간 클릭 이벤트
+        document.querySelector('.departure-time').addEventListener('click', function() {
+            alert('출발 시간을 선택하세요');
+        });
+
+        // 빠른 접근 버튼 클릭 이벤트
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.textContent;
+                if (icon === '🏠') {
+                    alert('집으로 설정되었습니다');
+                } else if (icon === '🏢') {
+                    alert('회사로 설정되었습니다');
+                }
+            });
+        });
+
+        // 페이지 로드 시 애니메이션
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelector('.ad-banner').style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html> 

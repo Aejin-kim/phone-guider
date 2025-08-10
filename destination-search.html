@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도착지 검색 - 카카오 T</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            background: #fff;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            background: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 상단 헤더 */
+        .header {
+            background: #fff;
+            padding: 20px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            background: #F3F4F6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .departure-location {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 20px;
+            padding: 0 5px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 2px solid #EF4444;
+            border-radius: 12px;
+            padding: 15px;
+            gap: 15px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-container::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #EF4444;
+            border-radius: 50%;
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 16px;
+            color: #333;
+            padding-left: 25px;
+        }
+
+        .search-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .mic-button {
+            width: 24px;
+            height: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #6B7280;
+        }
+
+        /* 빠른 접근 버튼 */
+        .quick-access {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .quick-btn {
+            flex: 1;
+            padding: 15px;
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #E5E7EB;
+        }
+
+        .quick-btn.home::before {
+            content: '🏠';
+            font-size: 16px;
+        }
+
+        .quick-btn.company::before {
+            content: '🏢';
+            font-size: 16px;
+        }
+
+        .quick-btn.location::before {
+            content: '🎯';
+            font-size: 16px;
+        }
+
+        /* 검색 결과 영역 */
+        .search-results {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #F3F4F6;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .result-item:hover {
+            background-color: #F9FAFB;
+        }
+
+        .result-icon {
+            width: 40px;
+            height: 40px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #374151;
+        }
+
+        .result-type {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .result-distance {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .back-button {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+            
+            .departure-location {
+                font-size: 13px;
+                margin-bottom: 15px;
+            }
+            
+            .search-container {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .search-input {
+                font-size: 15px;
+            }
+            
+            .quick-access {
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            .quick-btn {
+                padding: 12px;
+                font-size: 13px;
+            }
+            
+            .search-results {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px;
+            }
+            
+            .back-button {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            
+            .departure-location {
+                font-size: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .search-container {
+                padding: 10px;
+                margin-bottom: 12px;
+            }
+            
+            .search-input {
+                font-size: 14px;
+            }
+            
+            .quick-access {
+                gap: 8px;
+                margin-top: 12px;
+            }
+            
+            .quick-btn {
+                padding: 10px;
+                font-size: 12px;
+            }
+            
+            .search-results {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 상단 헤더 -->
+        <div class="header">
+            <button class="back-button" onclick="goBack()">←</button>
+            <div class="departure-location">제주시청앞 공영주차장</div>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="도착지 검색" id="searchInput" autofocus>
+                <button class="mic-button" onclick="startVoiceSearch()">🎤</button>
+            </div>
+            <div class="quick-access">
+                <button class="quick-btn home" onclick="addQuickAccess('집')">집</button>
+                <button class="quick-btn company" onclick="addQuickAccess('회사')">회사</button>
+                <button class="quick-btn location" onclick="addQuickAccess('현재위치')">위치</button>
+            </div>
+        </div>
+
+        <!-- 검색 결과 영역 -->
+        <div class="search-results" id="searchResults">
+            <!-- 검색 결과가 여기에 표시됩니다 -->
+        </div>
+    </div>
+
+    <script>
+        // 뒤로가기 버튼
+        function goBack() {
+            window.history.back();
+        }
+
+        // 검색 실행
+        function performSearch(query) {
+            const searchResults = document.getElementById('searchResults');
+            
+            if (query.trim().length > 0) {
+                // 예시 검색 결과
+                const results = [
+                    { name: query + ' (제주)', type: '장소', distance: '1.2km' },
+                    { name: query + '역', type: '지하철역', distance: '2.5km' },
+                    { name: query + ' 버스정류장', type: '버스정류장', distance: '0.8km' },
+                    { name: query + ' 상가', type: '상업시설', distance: '0.3km' }
+                ];
+                
+                searchResults.innerHTML = results.map(result => `
+                    <div class="result-item" onclick="selectDestination('${result.name}')">
+                        <div class="result-icon">📍</div>
+                        <div class="result-info">
+                            <div class="result-name">${result.name}</div>
+                            <div class="result-type">${result.type}</div>
+                        </div>
+                        <div class="result-distance">${result.distance}</div>
+                    </div>
+                `).join('');
+            } else {
+                searchResults.innerHTML = '';
+            }
+        }
+
+        // 도착지 선택
+        function selectDestination(destination) {
+            window.location.href = `destination-input.html?destination=${encodeURIComponent(destination)}`;
+        }
+
+        // 빠른 접근 추가
+        function addQuickAccess(type) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = type;
+            performSearch(type);
+        }
+
+        // 음성 검색
+        function startVoiceSearch() {
+            alert('음성 검색을 시작합니다.');
+        }
+
+        // 검색 입력 이벤트
+        document.getElementById('searchInput').addEventListener('input', function() {
+            performSearch(this.value);
+        });
+
+        // Enter 키 이벤트
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (query.length > 0) {
+                    selectDestination(query);
+                }
+            }
+        });
+
+        // 페이지 로드 시 애니메이션
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    el.style.opacity = '1';
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html> 
