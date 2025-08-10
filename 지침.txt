@@ -45,7 +45,7 @@ Playwright MCP Server 사용 예시
 { "tool":"playwright","parameters":{"action":"accessibilitySnapshot"} }
 { "tool": "context7", "parameters": {"query": "axios 최신 버전 알려줘"} }
 { "tool": "context7", "parameters": {"query": "lodash 사용법 예시"} }
-
+ 
 "openai-gpt-image-mcp" 사용 방법
 {
 "tool": "create-image",
