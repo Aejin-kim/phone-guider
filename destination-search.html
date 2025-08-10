@@ -361,7 +361,12 @@
 
         // 도착지 선택
         function selectDestination(destination) {
-            window.location.href = `destination-input.html?destination=${encodeURIComponent(destination)}`;
+            // 제주공항 검색 시 특별한 페이지로 이동
+            if (destination === '제주공항' || destination.includes('제주공항')) {
+                window.location.href = 'jeju-airport-results.html';
+            } else {
+                window.location.href = `destination-input.html?destination=${encodeURIComponent(destination)}`;
+            }
         }
 
         // 빠른 접근 추가
@@ -386,7 +391,12 @@
             if (e.key === 'Enter') {
                 const query = this.value.trim();
                 if (query.length > 0) {
-                    selectDestination(query);
+                    // 제주공항 검색 시 특별한 페이지로 이동
+                    if (query === '제주공항' || query.includes('제주공항')) {
+                        window.location.href = 'jeju-airport-results.html';
+                    } else {
+                        selectDestination(query);
+                    }
                 }
             }
         });

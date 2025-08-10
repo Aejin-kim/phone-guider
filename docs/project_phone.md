@@ -39,6 +39,9 @@
 - ✅ 터치 인터랙션 최적화
 - ✅ 애니메이션 효과
 - ✅ 모바일 친화적 UI/UX
+- ✅ destination-input.html에 드래그 가능한 택시 아이콘 추가
+- ✅ destination-search.html 수정하여 "제주공항" 검색 시 jeju-airport-results.html로 이동
+- ✅ jeju-airport-results.html 생성 (제주공항 주변 5개 시설 정보 포함)
 
 ## 6. 기술 스택
 - HTML5

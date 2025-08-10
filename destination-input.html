@@ -304,6 +304,74 @@
                 font-size: 12px;
             }
         }
+
+        /* 택시 아이콘 (드래그 가능) */
+        .taxi-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            user-select: none;
+            z-index: 1000;
+        }
+
+        .taxi-icon:active {
+            cursor: grabbing;
+        }
+
+        .taxi-body {
+            width: 40px;
+            height: 40px;
+            background: #3B82F6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .taxi-body::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 8px;
+            background: #FBBF24;
+            border-radius: 4px;
+        }
+
+        .departure-label {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #374151;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .departure-label::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #374151;
+        }
     </style>
 </head>
 <body>
@@ -325,6 +393,12 @@
                 <button class="target-button">
                     🎯
                 </button>
+
+                <!-- 택시 아이콘 (드래그 가능) -->
+                <div class="taxi-icon" id="taxiIcon">
+                    <div class="taxi-body">🚗</div>
+                    <div class="departure-label">출발</div>
+                </div>
 
                 <!-- 지도 내 포인트들 -->
                 <div class="map-points">
@@ -445,6 +519,104 @@
 
         document.addEventListener('touchend', function() {
             isDragging = false;
+        });
+
+        // 택시 아이콘 드래그 기능
+        const taxiIcon = document.getElementById('taxiIcon');
+        let isDraggingTaxi = false;
+        let startTaxiX = 0;
+        let startTaxiY = 0;
+        let startTaxiLeft = 0;
+        let startTaxiTop = 0;
+
+        // 마우스 드래그
+        taxiIcon.addEventListener('mousedown', function(e) {
+            isDraggingTaxi = true;
+            startTaxiX = e.clientX;
+            startTaxiY = e.clientY;
+            
+            const rect = taxiIcon.getBoundingClientRect();
+            startTaxiLeft = rect.left;
+            startTaxiTop = rect.top;
+            
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDraggingTaxi) return;
+            
+            const deltaX = e.clientX - startTaxiX;
+            const deltaY = e.clientY - startTaxiY;
+            
+            const newLeft = startTaxiLeft + deltaX;
+            const newTop = startTaxiTop + deltaY;
+            
+            // 지도 경계 내에서만 이동 가능
+            const mapContainer = document.querySelector('.map-container');
+            const mapRect = mapContainer.getBoundingClientRect();
+            const taxiRect = taxiIcon.getBoundingClientRect();
+            
+            const maxLeft = mapRect.width - taxiRect.width;
+            const maxTop = mapRect.height - taxiRect.height;
+            
+            const constrainedLeft = Math.max(0, Math.min(newLeft, maxLeft));
+            const constrainedTop = Math.max(0, Math.min(newTop, maxTop));
+            
+            taxiIcon.style.left = constrainedLeft + 'px';
+            taxiIcon.style.top = constrainedTop + 'px';
+            taxiIcon.style.transform = 'none';
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDraggingTaxi) {
+                isDraggingTaxi = false;
+            }
+        });
+
+        // 터치 드래그
+        taxiIcon.addEventListener('touchstart', function(e) {
+            isDraggingTaxi = true;
+            startTaxiX = e.touches[0].clientX;
+            startTaxiY = e.touches[0].clientY;
+            
+            const rect = taxiIcon.getBoundingClientRect();
+            startTaxiLeft = rect.left;
+            startTaxiTop = rect.top;
+            
+            e.preventDefault();
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isDraggingTaxi) return;
+            
+            const deltaX = e.touches[0].clientX - startTaxiX;
+            const deltaY = e.touches[0].clientY - startTaxiY;
+            
+            const newLeft = startTaxiLeft + deltaX;
+            const newTop = startTaxiTop + deltaY;
+            
+            // 지도 경계 내에서만 이동 가능
+            const mapContainer = document.querySelector('.map-container');
+            const mapRect = mapContainer.getBoundingClientRect();
+            const taxiRect = taxiIcon.getBoundingClientRect();
+            
+            const maxLeft = mapRect.width - taxiRect.width;
+            const maxTop = mapRect.height - taxiRect.height;
+            
+            const constrainedLeft = Math.max(0, Math.min(newLeft, maxLeft));
+            const constrainedTop = Math.max(0, Math.min(newTop, maxTop));
+            
+            taxiIcon.style.left = constrainedLeft + 'px';
+            taxiIcon.style.top = constrainedTop + 'px';
+            taxiIcon.style.transform = 'none';
+            
+            e.preventDefault();
+        });
+
+        document.addEventListener('touchend', function() {
+            if (isDraggingTaxi) {
+                isDraggingTaxi = false;
+            }
         });
     </script>
 </body>
