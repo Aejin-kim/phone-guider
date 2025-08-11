@@ -361,12 +361,8 @@
 
         // 도착지 선택
         function selectDestination(destination) {
-            // 제주공항 검색 시 특별한 페이지로 이동
-            if (destination === '제주공항' || destination.includes('제주공항')) {
-                window.location.href = 'jeju-airport-results.html';
-            } else {
-                window.location.href = `destination-input.html?destination=${encodeURIComponent(destination)}`;
-            }
+            // 테스트를 위해 무조건 jeju-airport-results.html로 이동하도록 수정
+            window.location.href = 'jeju-airport-results.html';
         }
 
         // 빠른 접근 추가
