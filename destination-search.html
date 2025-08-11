@@ -391,12 +391,8 @@
             if (e.key === 'Enter') {
                 const query = this.value.trim();
                 if (query.length > 0) {
-                    // 제주공항 검색 시 특별한 페이지로 이동
-                    if (query === '제주공항' || query.includes('제주공항')) {
-                        window.location.href = 'jeju-airport-results.html';
-                    } else {
-                        selectDestination(query);
-                    }
+                    // selectDestination 함수를 호출하여 로직을 일원화합니다.
+                    selectDestination(query);
                 }
             }
         });
