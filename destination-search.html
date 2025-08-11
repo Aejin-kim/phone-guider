@@ -383,8 +383,9 @@
         });
 
         // Enter 키 이벤트
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        document.getElementById('searchInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 const query = this.value.trim();
                 if (query.length > 0) {
                     // selectDestination 함수를 호출하여 로직을 일원화합니다.
