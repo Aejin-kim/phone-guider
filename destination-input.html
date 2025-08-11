@@ -437,9 +437,13 @@
     <script>
         // 빠른 목적지 추가
         function addQuickDestination(destination) {
-            const input = document.getElementById('destinationInput');
-            input.value = destination;
-            input.focus();
+            if (destination === '제주국제공항') {
+                window.location.href = 'jeju-airport-results.html';
+            } else {
+                const input = document.getElementById('destinationInput');
+                input.value = destination;
+                input.focus();
+            }
         }
 
         // 출발 버튼 클릭
